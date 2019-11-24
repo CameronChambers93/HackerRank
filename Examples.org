@@ -1,0 +1,416 @@
+* Easy
+
+** Sorting: Bubble Sort
+*** Problem Description
+    Given an array of integers, perform a bubble sort in ascending order.
+    After the sort, print the following:
+        - numSwaps: number of swaps
+	- firstElement: first element in the sorted list
+	- lastElement: last element in the sorted list
+
+
+    Output should have the following form:
+        Array is sorted in 3 swaps.
+	First Element: 1
+	Last Element: 3
+
+*** Date
+    11/23/2019
+*** Link
+    ctci-bubble-sort
+*** Attempt #1
+**** Pseudocode
+     
+     No explanation needed
+**** Code
+#+NAME: 
+#+BEGIN_SRC python
+def countSwaps(a):
+    count = 0
+    for i in range(len(a)-1):
+        for j in range(len(a)-1):
+            if a[j] > a[j+1]:
+                a[j], a[j+1] = a[j+1], a[j]
+                count += 1
+    print("Array is sorted in %d swaps." % count)
+    print("First Element: %d" % a[0])
+    print("Last Element: %d" % a[-1])
+#+END_SRC
+**** Results
+     Passed all cases :)
+
+
+* Medium
+
+** SherLock and Anagrams
+*** Problem Description
+   Two strings are anagrams of each other if the characters in one can be rearranged to form the other.
+   Given a string, find the number of pairs of substrings that are anagrams of each other.
+
+*** Date
+    11/22/2019
+*** Link
+    sherlock-and-anagrams
+
+*** Attempt #1
+
+**** Pseudocode
+    Create a dictionary to count the occurrence of every unique substring
+    For every substring:
+        Sort the substring
+	Add 1 to the corresponding key value pair
+    For every substring in the dictionary with value > 1:
+        Find the number of pairs/combinations
+
+**** Code
+
+#+Name: SherlockAndAnagrams
+#+BEGIN_SRC python :exports code :tangle yes :var s="kkkk"
+def sherlockAndAnagrams(s):
+    count = 0
+    anagrams = {}
+    for i in range(len(s)):
+        for j in range(i,len(s)):
+            subString = ""
+            tmp = s[i:j+1]
+            for gram in sorted(tmp):
+                subString += gram
+            print(subString)
+            if anagrams.get(subString) == None:
+                anagrams[subString] = 0
+            anagrams[subString] += 1
+    #pdb.set_trace()
+    for (x, value) in anagrams.items():
+        if value > 1:
+            #print(x,value,((value*(value-1))//2))
+            count += ((value *(value - 1)) // 2)
+    return count
+#+END_SRC
+
+#+RESULTS: SherlockAndAnagrams
+: None
+        
+**** Results
+
+     Passed all test cases :)
+                        
+
+** Count Triplets
+*** Problem Description
+    You are given an array and you need to find number of tripets of indices such that the elements 
+    at those indices are in geometric progression for a given common ratio r and i < j < k.
+    
+    For example, arr = [1,4,16,64]
+    If r = 4, we have [1,4,6] and [4,16,64] at indices (0,1,2) and (1,2,3). 
+
+*** Date
+    11/22/2019
+*** Link
+    count-triplets-1
+
+*** Attempt #1
+**** Pseudocode
+
+    Create a dictionary to count the occurrence of each number
+    For every number in arr:
+        Add 1 to the corresponding key value pair
+    For every (key, value) in the dictionary:
+        If the two numbers needed to complete the geometric ratio (value*r and value*r*r) exist in the dictionary:
+	    Add to a counter the number of unique combinations
+
+**** Code
+#+Name: CountTriplets1
+#+BEGIN_SRC python
+def countTriplets(arr, r):
+    count = 0
+    freq = {}
+    maximum = int(sorted(arr)[-1])
+    for num in arr:
+        if freq.get(num) == None:
+            freq[num] = 1
+        else:
+            freq[num] += 1
+    for (k,value) in freq.items():
+        curr = 0
+        kAsInt = int(k)
+        if kAsInt*r*r <= maximum:
+            curr = value
+            if freq.get(kAsInt*r) == None:
+                curr = 0
+            elif freq.get(kAsInt*r) > 1:
+                curr *= freq.get(kAsInt*r)
+            if freq.get(kAsInt*r*r) == None:
+                curr = 0
+            elif freq.get(kAsInt*r*r) > 1:
+                curr *= freq.get(kAsInt*r*r)
+            count += curr
+    return count
+#+END_SRC
+**** Results
+
+     Passed 6/13 test cases.
+
+     Realized a new edge case: when r = 1
+
+*** Attempt #2
+    Same as the first attempt, but with the edge case handled
+**** Code
+#+Name: CountTriplets2
+#+BEGIN_SRC python
+def countTriplets(arr, r):
+    count = 0
+    freq = {}
+    maximum = int(sorted(arr)[-1])
+    for num in arr:
+        if freq.get(num) == None:
+            freq[num] = 1
+        else:
+            freq[num] += 1
+    
+    if r == 1:
+        for (k,value) in freq.items():
+            if value > 1:
+                count += ((value * (value-1) * (value-2))//6)
+
+    for (k,value) in freq.items():
+        curr = 0
+        kAsInt = int(k)
+        if kAsInt*r*r <= maximum:
+            curr = value
+            if freq.get(kAsInt*r) == None:
+                curr = 0
+            elif freq.get(kAsInt*r) > 1:
+                curr *= freq.get(kAsInt*r)
+            if freq.get(kAsInt*r*r) == None:
+                curr = 0
+            elif freq.get(kAsInt*r*r) > 1:
+                curr *= freq.get(kAsInt*r*r)
+            count += curr
+    return count
+
+#+END_SRC
+**** Results
+     8/13. Realized I had missed an important constraint in the instructions. That is, for any valid progression
+     of values i,j,k, index(i) < index(j) < index(k)
+     
+*** Attempt #3
+**** Pseudocode
+**** Code
+#+Name: CountTriplets3
+#+BEGIN_SRC python
+def countTriplets(arr, r):
+    count = 0
+    freq = {}
+    maximum = int(sorted(arr)[-1])
+    for num in range(len(arr)-1,-1,-1):
+        if freq.get(arr[num]) == None:
+            freq[arr[num]] = 0    
+        freq[arr[num]] += 1
+        curr = 0
+        kAsInt = int(arr[num])
+        k = arr[num]
+        value = freq[k]
+        if kAsInt*r*r <= maximum:
+            curr = 1
+            if freq.get(kAsInt*r) == None:
+                curr = 0
+            elif freq.get(kAsInt*r) > 1:
+                curr *= freq.get(kAsInt*r)
+            if freq.get(kAsInt*r*r) == None:
+                curr = 0
+            elif freq.get(kAsInt*r*r) > 1:
+                curr *= freq.get(kAsInt*r*r)
+            count += curr
+
+    if r == 1:
+        count = 0
+        for (k,value) in freq.items():
+            if value > 1:
+                count += ((value * (value-1) * (value-2))//6)
+    
+    return count
+#+END_SRC
+**** Results
+     Passed 11/13 test cases. Code currently gives incorrect answer for last two cases, will come back to later.
+     
+
+** Frequency Queries
+
+*** Problem Description
+
+    You are given q queries. Each query is of the form two integers described below:
+        - 1 x: Insert x in your data structure
+	- 2 y: Delete one occurrence of y from your data structure, if present
+	- 3 z: Check if any integer is present whose frequency is exactly z. If yes, print 1 else 0
+
+    Here, "print 1 else 0" will mean to add 0 or 1 to an array, and then return that array upon completion
+
+*** Date
+    11/23/2019
+
+*** Link
+    frequency-queries
+
+*** AtTempt #1
+
+**** Pseudocode
+
+    Keep a dictionary of (key,value) pairs
+    If the instruction is of type 1:
+        Increase that key's value by 1
+    If the instruction is of type 2:
+	Decrease that key's value by 1
+    Else:
+        Loop through dictionary values, returning 1 if found, 0 if not
+    
+
+**** Code
+
+#+Name: FrequencyQueries1
+#+BEGIN_SRC python
+def freqQuery(queries):
+    freq = {}
+    arr = []
+    for query in queries:
+        val = query[1]
+        if query[0] == 1:
+            if freq.get(val) == None:
+                freq[val] = 1
+            else:
+                freq[val] += 1
+        elif query[0] == 2:
+            if freq.get(val) != None:
+                if freq[val] > 0:
+                    freq[val] -= 1
+        else:
+            found = False
+            for (key,value) in freq.items():
+                if value == val:
+                    found = True
+            if found == True:
+                arr.append(1)
+            else:
+                arr.append(0)
+    return arr
+#+END_SRC
+	    
+
+**** Results
+    Passed 9/13 test cases. The ones that failed were due to timeout :(
+     
+    The time it takes to access a dictionary element is a small constant, but since we are iterating through
+    each element, that speed is kind of nullified. Instead, we will keep a seperate counter to count the
+    number of (key,value) pairs having each value
+
+*** Attempt #2
+
+**** Pseudocode
+     
+    Implement two counters (having just read about this collection object)
+        One counter will act similarly to the dictionary in the first attempt, keeping a record of current values
+	The second counter will record the number of (key,value) pairs with values from 0 to whatever maximum value
+    From here it will be the same as the last pseudocode except:
+        When the instruction is of type 1/2:
+	    Update the second counter before and after updating the first counter
+
+**** Code
+
+#+NAME: FrequencyQueries
+#+BEGIN_SRC python
+
+def freqQuery(queries):
+    freq = Counter()
+    counterCounter = Counter()
+    arr = []
+    for query in queries:
+        val = int(query[1])
+        if query[0] == 1:
+            counterCounter[freq[val]] -= 1
+            freq[val] += 1
+            counterCounter[freq[val]] += 1
+        elif query[0] == 2:
+            if counterCounter[freq[val]] > 0:
+                counterCounter[freq[val]] -= 1
+                freq[val] -= 1
+                counterCounter[freq[val]] += 1
+        else:
+            if counterCounter[val] > 0:
+                arr.append(1)
+            else:
+                arr.append(0)
+    return arr
+
+#+END_SRC
+
+**** Results
+
+     Passed all test cases :)
+	    
+
+
+
+
+
+
+
+** Fraudulent Activity Notifications
+*** Problem Description
+    HackerLand National Bank has a simple policy for warning clients about possible fraudulent account activity. 
+    If the amount spent by a client on a particular day is greater than or equal to 2x the client's median spending
+    for a trailing number of days, they send the client a notification about potential fraud. The bank doesn't
+    send the client any notifications until they have at least that trailing number of prior days' transaction data.
+
+    Given the number of trailing days d and a client's total daily expenditures for a period of n days, find and print
+    the number of times the client will receive a notification over all n days.
+*** Date
+    11/23/2019
+*** Link
+    fraudulent-activity-notifications
+*** Attempt #1
+**** Pseudocode
+
+     Calculate the median value of the first d days
+     For every subsequent value and group of d days:
+         If the value is greater than the current median, increase a counter by 1
+	 Calculate the new median
+     Return the counter
+
+**** Code
+#+NAME: ActivityNotifications
+#+BEGIN_SRC python
+def activityNotifications(expenditure, d):
+
+    dDays = {}
+    for i in range(d):
+        dDays[i] = expenditure[i]
+
+    dValues = sorted(dDays.values())
+
+    if d % 2 == 0:
+        median = (dValues[(d//2)] + dValues[(d//2 + 1)]) / 2
+    else:
+        median = dValues[d//2]
+
+    count = 0
+    #pdb.set_trace()
+    for j in range(d,len(expenditure)):
+        if expenditure[j] >= median * 2:
+            count += 1
+        
+        for k in range(d-1):
+            dDays[k] = dDays[k+1]
+        dDays[d-1] = expenditure[j]
+
+        dValues = sorted(dDays.values())
+
+        if d % 2 == 0:
+            median = (dValues[(d//2)] + dValues[(d//2 + 1)]) / 2
+        else:
+            median = dValues[d//2]
+    return count
+#+END_SRC
+**** Results
+     Passed 3/8 test cases. Failed the rest due to time limits
+
+
+* Hard
