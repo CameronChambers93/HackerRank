@@ -412,5 +412,67 @@ def activityNotifications(expenditure, d):
 **** Results
      Passed 3/8 test cases. Failed the rest due to time limits
 
+** Abbreviation
+*** Problem Description
+    You can perform the following operations on a given string a:
+        1. Capitalize zero or more of a's lowercase letters
+	2. Delete all of the remaining lowercase letters in a
+    Given two strings a and b, determine if it's possible to make a equal to b as described.
+    If so, print 'YES' on a new line, otherwise print 'NO'
+*** Date
+    11/25/2019
+*** Link
+    abbr
+*** Attempt #1
+**** Pseudocode
+     
+    Iterate through both strings at the same time
+    Check if the characters in string a are equal to the characters in string b
+        If they are equal, continue to the next character in both strings
+	If the character in a is lowercase and not the same letter as the character in b, skip to the next char in a
+	If the character in a is lowercase AND the same letter as the character in b, try two attempts:
+	    1. Capitalize the character in a and continue
+	     2. Skip the lowercase letter (permitted there is a capitalized form ahead)
+    Return "YES" if the iteration completes and no more capital letters remain in a
+**** Code
+#+NAME: 
+#+BEGIN_SRC python
+def callAbbr(a,b):
+    result = abbreviation(a,b)
+    if result > 0:
+        return "YES"
+    else:
+        return "NO"
+            
+def abbreviation(a, b):
+    if len(b) == 0: 
+        for k in a: # Test remaining letters in a
+            if ord(k) < 96: # If a still contains a capital
+                return False
+        return True
+    i, j, result = 0, 0, 0
+    while j < len(b):
+        if i >= len(a): # No more letters in a
+            return False
+        if a[i] == b[j]: # Both are capital and equivalent
+            i += 1
+            j += 1
+        elif ord(a[i]) > 96 and a[i].upper() != b[j]: # Char in a is lowercase and not the same letter as b
+            i += 1
+        elif ord(a[i]) < 96: # Char in a is capital and not equivalent to b
+            return False
+        else:
+            result += abbreviation(a[i+1:],b[j+1:]) # If we capitalize the letter in a and move on
+            result += abbreviation(a[i+1:],b[j:])   # If we discard the lowercase letter in a
+            return result
+    for k in a[i:]: # Test remaining letters in a
+        if ord(k) < 96: # If a still contains a capital
+            return False
+    return True
+#+END_SRC
+**** Results
+     Passed all but 3 test cases. The ones I failed were due to time constraint :(
+
+
 
 * Hard
